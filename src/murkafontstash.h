@@ -25,9 +25,9 @@ extern "C" {
 #endif
 
 struct MURKAFONScontext {
-	MurkaRendererBase* renderer = nullptr;
-	MurImage* img = nullptr;
-	MurVbo* vbo = nullptr;
+	murka::MurkaRendererBase* renderer = nullptr;
+	murka::MurImage* img = nullptr;
+	murka::MurVbo* vbo = nullptr;
 	int width, height;
 };
 typedef struct MURKAFONScontext MURKAFONScontext;
@@ -49,8 +49,8 @@ static int glfons__renderCreate(void* userPtr, int width, int height)
 	context->width = width;
 	context->height = height;
 
-	context->img = new MurImage();
-	context->vbo = new MurVbo();
+	context->img = new murka::MurImage();
+	context->vbo = new murka::MurVbo();
 
 	return 1;
 }
@@ -67,7 +67,7 @@ static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 	int w = rect[2] - rect[0];
 	int h = rect[3] - rect[1];
 
-	MurkaRenderer* renderer = (MurkaRenderer*)context->renderer;
+	murka::MurkaRenderer* renderer = (murka::MurkaRenderer*)context->renderer;
 #if defined(MURKA_JUCE)
 	context->img->setOpenGLContext(renderer->getOpenGLContext());
 #endif
@@ -89,7 +89,7 @@ static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			context->img->setColor(x + rect[0], y + rect[1], MurkaColor(1.0, 1.0, 1.0, float(data[(rect[1] + y) * context->width + (rect[0] + x)] ) / 255));
+			context->img->setColor(x + rect[0], y + rect[1], murka::MurkaColor(1.0, 1.0, 1.0, float(data[(rect[1] + y) * context->width + (rect[0] + x)] ) / 255));
 		}
 	}
 
@@ -126,9 +126,13 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 
 	context->renderer->bind(*(context->img));
 	 
-	context->vbo->setVertexData((MurkaPoint*)verts, nverts);
-	context->vbo->setTexCoordData((MurkaPoint*)tcoords, nverts);
-	context->vbo->update(GL_DYNAMIC_DRAW);
+	context->vbo->setVertexData((murka::MurkaPoint*)verts, nverts);
+	context->vbo->setTexCoordData((murka::MurkaPoint*)tcoords, nverts);
+#ifdef WIN32
+	context->vbo->update(juce::GL_STREAM_DRAW);
+#else 
+	context->vbo->update(GL_STREAM_DRAW);
+#endif
 
 	context->renderer->drawVbo(*(context->vbo), GL_TRIANGLES, 0, nverts);
 
