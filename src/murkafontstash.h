@@ -128,11 +128,7 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 	 
 	context->vbo->setVertexData((murka::MurkaPoint*)verts, nverts);
 	context->vbo->setTexCoordData((murka::MurkaPoint*)tcoords, nverts);
-#ifdef WIN32
-	context->vbo->update(juce::GL_STREAM_DRAW);
-#else 
-	context->vbo->update(GL_STREAM_DRAW);
-#endif
+    context->vbo->update(GL_STREAM_DRAW, ((murka::MurkaRenderer*)context->renderer)->getAttribLocationPosition(), ((murka::MurkaRenderer*)context->renderer)->getAttribLocationUv());
 
 	context->renderer->drawVbo(*(context->vbo), GL_TRIANGLES, 0, nverts);
 
