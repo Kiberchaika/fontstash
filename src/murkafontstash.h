@@ -129,10 +129,10 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 	vector<murka::MurkaPoint3D> v;
 	for (size_t i = 0; i < nverts; i++) {
 		murka::MurkaPoint p = ((murka::MurkaPoint*)verts)[i];
-		v.push_back(murka::MurkaPoint3D(p.x, p.y, 0.0));
+		v.push_back(murka::MurkaPoint3D(p.x, p.y, 0));
 	}
 
-	context->vbo->setVertexData((murka::MurkaPoint*)v.data(), nverts);
+	context->vbo->setVertexData((murka::MurkaPoint3D*)v.data(), nverts);
 	context->vbo->setTexCoordData((murka::MurkaPoint*)tcoords, nverts);
 #ifdef MURKA_JUCE
 	context->vbo->update(GL_STREAM_DRAW, ((murka::MurkaRenderer*)context->renderer)->getMainShaderAttribLocation("position"), ((murka::MurkaRenderer*)context->renderer)->getMainShaderAttribLocation("uv"), ((murka::MurkaRenderer*)context->renderer)->getMainShaderAttribLocation("col"));
