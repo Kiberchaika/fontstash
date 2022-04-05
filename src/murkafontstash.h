@@ -126,7 +126,7 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 
 	context->renderer->bind(*(context->img));
 	
-	vector<murka::MurkaPoint3D> v;
+	std::vector<murka::MurkaPoint3D> v;
 	for (size_t i = 0; i < nverts; i++) {
 		murka::MurkaPoint p = ((murka::MurkaPoint*)verts)[i];
 		v.push_back(murka::MurkaPoint3D(p.x, p.y, 0));
