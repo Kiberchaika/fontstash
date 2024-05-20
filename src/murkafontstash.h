@@ -89,24 +89,13 @@ static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			context->img->setColor(x + rect[0], y + rect[1], murka::MurkaColor(1.0, 1.0, 1.0, float(data[(rect[1] + y) * context->width + (rect[0] + x)] ) / 255));
+			context->img->setColor(x + rect[0], y + rect[1], murka::MurkaColor(255, 255, 255, float(data[(rect[1] + y) * context->width + (rect[0] + x)] )));
 		}
 	}
 
 	context->img->update();
 }
 
-/*
-ofFloatColor rgbaToOf(unsigned int& col)
-{
-	ofFloatColor c;
-	c.a = (col >> 24 & 0xff) / 255.0;
-	c.b = (col >> 16 & 0xff) / 255.0;
-	c.g = (col >> 8 & 0xff) / 255.0;
-	c.r = (col >> 0 & 0xff) / 255.0;
-	return c;
-}
-*/
 
 static void glfons__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
 {
