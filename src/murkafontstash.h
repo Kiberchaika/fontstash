@@ -118,7 +118,7 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 	std::vector<murka::MurkaPoint3D> v;
 	for (size_t i = 0; i < nverts; i++) {
 		murka::MurkaPoint p = ((murka::MurkaPoint*)verts)[i];
-		v.push_back(murka::MurkaPoint3D(p.x, p.y, 0));
+		v.push_back(murka::MurkaPoint3D(p.x / context->renderer->getScreenScale(), p.y / context->renderer->getScreenScale(), 0));
 	}
 
 	context->vbo->setVertexData((murka::MurkaPoint3D*)v.data(), nverts);
