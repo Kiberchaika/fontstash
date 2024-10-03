@@ -18,24 +18,24 @@
 #ifndef GLFONTSTASH_H
 #define GLFONTSTASH_H
 
-FONScontext* glfonsCreate(int width, int height, int flags);
-void glfonsDelete(FONScontext* ctx);
+FONTcontext* glfontCreate(int width, int height, int flags);
+void glfontDelete(FONTcontext* ctx);
 
-unsigned int glfonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+unsigned int glfontRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
 #endif
 
 #ifdef GLFONTSTASH_IMPLEMENTATION
 
-struct GLFONScontext {
+struct GLFONTcontext {
 	GLuint tex;
 	int width, height;
 };
-typedef struct GLFONScontext GLFONScontext;
+typedef struct GLFONTcontext GLFONTcontext;
 
-static int glfons__renderCreate(void* userPtr, int width, int height)
+static int glfont__renderCreate(void* userPtr, int width, int height)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 	// Create may be called multiple times, delete existing texture.
 	if (gl->tex != 0) {
 		glDeleteTextures(1, &gl->tex);
@@ -51,15 +51,15 @@ static int glfons__renderCreate(void* userPtr, int width, int height)
 	return 1;
 }
 
-static int glfons__renderResize(void* userPtr, int width, int height)
+static int glfont__renderResize(void* userPtr, int width, int height)
 {
 	// Reuse create to resize too.
-	return glfons__renderCreate(userPtr, width, height);
+	return glfont__renderCreate(userPtr, width, height);
 }
 
-static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* data)
+static void glfont__renderUpdate(void* userPtr, int* rect, const unsigned char* data)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 	int w = rect[2] - rect[0];
 	int h = rect[3] - rect[1];
 
@@ -74,9 +74,9 @@ static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 	glPopClientAttrib();
 }
 
-static void glfons__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
+static void glfont__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 	if (gl->tex == 0) return;
 	glBindTexture(GL_TEXTURE_2D, gl->tex);
 	glEnable(GL_TEXTURE_2D);
@@ -96,9 +96,9 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 	glDisableClientState(GL_COLOR_ARRAY);
 }
 
-static void glfons__renderDelete(void* userPtr)
+static void glfont__renderDelete(void* userPtr)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 	if (gl->tex != 0)
 		glDeleteTextures(1, &gl->tex);
 	gl->tex = 0;
@@ -106,39 +106,39 @@ static void glfons__renderDelete(void* userPtr)
 }
 
 
-FONScontext* glfonsCreate(int width, int height, int flags)
+FONTcontext* glfontCreate(int width, int height, int flags)
 {
-	FONSparams params;
-	GLFONScontext* gl;
+	FONTparams params;
+	GLFONTcontext* gl;
 
-	gl = (GLFONScontext*)malloc(sizeof(GLFONScontext));
+	gl = (GLFONTcontext*)malloc(sizeof(GLFONTcontext));
 	if (gl == NULL) goto error;
-	memset(gl, 0, sizeof(GLFONScontext));
+	memset(gl, 0, sizeof(GLFONTcontext));
 
 	memset(&params, 0, sizeof(params));
 	params.width = width;
 	params.height = height;
 	params.flags = (unsigned char)flags;
-	params.renderCreate = glfons__renderCreate;
-	params.renderResize = glfons__renderResize;
-	params.renderUpdate = glfons__renderUpdate;
-	params.renderDraw = glfons__renderDraw; 
-	params.renderDelete = glfons__renderDelete;
+	params.renderCreate = glfont__renderCreate;
+	params.renderResize = glfont__renderResize;
+	params.renderUpdate = glfont__renderUpdate;
+	params.renderDraw = glfont__renderDraw; 
+	params.renderDelete = glfont__renderDelete;
 	params.userPtr = gl;
 
-	return fonsCreateInternal(&params);
+	return fontCreateInternal(&params);
 
 error:
 	if (gl != NULL) free(gl);
 	return NULL;
 }
 
-void glfonsDelete(FONScontext* ctx)
+void glfontDelete(FONTcontext* ctx)
 {
-	fonsDeleteInternal(ctx);
+	fontDeleteInternal(ctx);
 }
 
-unsigned int glfonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+unsigned int glfontRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	return (r) | (g << 8) | (b << 16) | (a << 24);
 }

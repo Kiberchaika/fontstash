@@ -5,10 +5,10 @@
 extern "C" {
 #endif
     
-    FONS_DEF FONScontext* glfonsCreate(int width, int height, int flags);
-    FONS_DEF void glfonsDelete(FONScontext* ctx);
+    FONT_DEF FONTcontext* glfontCreate(int width, int height, int flags);
+    FONT_DEF void glfontDelete(FONTcontext* ctx);
     
-    FONS_DEF unsigned int glfonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+    FONT_DEF unsigned int glfontRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
     
 #ifdef __cplusplus
 }
@@ -24,17 +24,17 @@ extern "C" {
 extern "C" {
 #endif
 
-struct MURKAFONScontext {
+struct MURKAFONTcontext {
 	murka::MurkaRendererBase* renderer = nullptr;
 	murka::MurImage* img = nullptr;
 	murka::MurVbo* vbo = nullptr;
 	int width, height;
 };
-typedef struct MURKAFONScontext MURKAFONScontext;
+typedef struct MURKAFONTcontext MURKAFONTcontext;
 
-static int glfons__renderCreate(void* userPtr, int width, int height)
+static int glfont__renderCreate(void* userPtr, int width, int height)
 {
-	MURKAFONScontext* context = (MURKAFONScontext*)userPtr;
+	MURKAFONTcontext* context = (MURKAFONTcontext*)userPtr;
 	// Create may be called multiple times, delete existing texture.
 	if (context->img != 0) {
 		delete context->img;
@@ -55,15 +55,15 @@ static int glfons__renderCreate(void* userPtr, int width, int height)
 	return 1;
 }
 
-static int glfons__renderResize(void* userPtr, int width, int height)
+static int glfont__renderResize(void* userPtr, int width, int height)
 {
 	// Reuse create to resize too.
-	return glfons__renderCreate(userPtr, width, height);
+	return glfont__renderCreate(userPtr, width, height);
 }
 
-static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* data)
+static void glfont__renderUpdate(void* userPtr, int* rect, const unsigned char* data)
 {
-	MURKAFONScontext* context = (MURKAFONScontext*)userPtr;
+	MURKAFONTcontext* context = (MURKAFONTcontext*)userPtr;
 	int w = rect[2] - rect[0];
 	int h = rect[3] - rect[1];
 
@@ -97,9 +97,9 @@ static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 }
 
 
-static void glfons__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
+static void glfont__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
 {
-	MURKAFONScontext* context = (MURKAFONScontext*)userPtr;
+	MURKAFONTcontext* context = (MURKAFONTcontext*)userPtr;
 	if (context->img == 0) return;
 
 	/*
@@ -134,9 +134,9 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 	context->renderer->popStyle();
 }
 
-static void glfons__renderDelete(void* userPtr)
+static void glfont__renderDelete(void* userPtr)
 {
-	MURKAFONScontext* context = (MURKAFONScontext*)userPtr;
+	MURKAFONTcontext* context = (MURKAFONTcontext*)userPtr;
 
 	if (context->img != 0) {
 		delete context->img;
@@ -151,39 +151,39 @@ static void glfons__renderDelete(void* userPtr)
     free(context);
 }
 
-FONS_DEF FONScontext* glfonsCreate(int width, int height, int flags)
+FONT_DEF FONTcontext* glfontCreate(int width, int height, int flags)
 {
-	FONSparams params;
-	MURKAFONScontext* context;
+	FONTparams params;
+	MURKAFONTcontext* context;
 
-	context = (MURKAFONScontext*)malloc(sizeof(MURKAFONScontext));
+	context = (MURKAFONTcontext*)malloc(sizeof(MURKAFONTcontext));
 	if (context == NULL) goto error;
-	memset(context, 0, sizeof(MURKAFONScontext));
+	memset(context, 0, sizeof(MURKAFONTcontext));
 
 	memset(&params, 0, sizeof(params));
 	params.width = width;
 	params.height = height;
 	params.flags = (unsigned char)flags;
-	params.renderCreate = glfons__renderCreate;
-	params.renderResize = glfons__renderResize;
-	params.renderUpdate = glfons__renderUpdate;
-	params.renderDraw = glfons__renderDraw;
-	params.renderDelete = glfons__renderDelete;
+	params.renderCreate = glfont__renderCreate;
+	params.renderResize = glfont__renderResize;
+	params.renderUpdate = glfont__renderUpdate;
+	params.renderDraw = glfont__renderDraw;
+	params.renderDelete = glfont__renderDelete;
 	params.userPtr = context;
 
-	return fonsCreateInternal(&params);
+	return fontCreateInternal(&params);
 
 error:
 	if (context != NULL) free(context);
 	return NULL;
 }
 
-FONS_DEF void glfonsDelete(FONScontext* ctx)
+FONT_DEF void glfontDelete(FONTcontext* ctx)
 {
-	fonsDeleteInternal(ctx);
+	fontDeleteInternal(ctx);
 }
 
-FONS_DEF unsigned int glfonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+FONT_DEF unsigned int glfontRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	return (r) | (g << 8) | (b << 16) | (a << 24);
 }

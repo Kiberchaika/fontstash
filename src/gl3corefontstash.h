@@ -22,10 +22,10 @@
 extern "C" {
 #endif
 
-FONS_DEF FONScontext* glfonsCreate(int width, int height, int flags);
-FONS_DEF void glfonsDelete(FONScontext* ctx);
+FONT_DEF FONTcontext* glfontCreate(int width, int height, int flags);
+FONT_DEF void glfontDelete(FONTcontext* ctx);
 
-FONS_DEF unsigned int glfonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+FONT_DEF unsigned int glfontRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
 
 #ifdef __cplusplus
 }
@@ -35,19 +35,19 @@ FONS_DEF unsigned int glfonsRGBA(unsigned char r, unsigned char g, unsigned char
 
 #ifdef GLFONTSTASH_IMPLEMENTATION
 
-#ifndef GLFONS_VERTEX_ATTRIB
-#	define GLFONS_VERTEX_ATTRIB 0
+#ifndef GLFONT_VERTEX_ATTRIB
+#	define GLFONT_VERTEX_ATTRIB 0
 #endif
 
-#ifndef GLFONS_TCOORD_ATTRIB
-#	define GLFONS_TCOORD_ATTRIB 1
+#ifndef GLFONT_TCOORD_ATTRIB
+#	define GLFONT_TCOORD_ATTRIB 1
 #endif
 
-#ifndef GLFONS_COLOR_ATTRIB
-#	define GLFONS_COLOR_ATTRIB 2
+#ifndef GLFONT_COLOR_ATTRIB
+#	define GLFONT_COLOR_ATTRIB 2
 #endif
 
-struct GLFONScontext {
+struct GLFONTcontext {
 	GLuint tex;
 	int width, height;
 	GLuint vertexArray;
@@ -55,11 +55,11 @@ struct GLFONScontext {
 	GLuint tcoordBuffer;
 	GLuint colorBuffer;
 };
-typedef struct GLFONScontext GLFONScontext;
+typedef struct GLFONTcontext GLFONTcontext;
 
-static int glfons__renderCreate(void* userPtr, int width, int height)
+static int glfont__renderCreate(void* userPtr, int width, int height)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 
 	// Create may be called multiple times, delete existing texture.
 	if (gl->tex != 0) {
@@ -96,15 +96,15 @@ static int glfons__renderCreate(void* userPtr, int width, int height)
 	return 1;
 }
 
-static int glfons__renderResize(void* userPtr, int width, int height)
+static int glfont__renderResize(void* userPtr, int width, int height)
 {
 	// Reuse create to resize too.
-	return glfons__renderCreate(userPtr, width, height);
+	return glfont__renderCreate(userPtr, width, height);
 }
 
-static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* data)
+static void glfont__renderUpdate(void* userPtr, int* rect, const unsigned char* data)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 	int w = rect[2] - rect[0];
 	int h = rect[3] - rect[1];
 
@@ -133,9 +133,9 @@ static void glfons__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 	glPixelStorei(GL_UNPACK_SKIP_ROWS, skipRows);
 }
 
-static void glfons__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
+static void glfont__renderDraw(void* userPtr, const float* verts, const float* tcoords, const unsigned int* colors, int nverts)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 	if (gl->tex == 0 || gl->vertexArray == 0) return;
 
 	glActiveTexture(GL_TEXTURE0);
@@ -143,33 +143,33 @@ static void glfons__renderDraw(void* userPtr, const float* verts, const float* t
 
 	glBindVertexArray(gl->vertexArray);
 
-	glEnableVertexAttribArray(GLFONS_VERTEX_ATTRIB);
+	glEnableVertexAttribArray(GLFONT_VERTEX_ATTRIB);
 	glBindBuffer(GL_ARRAY_BUFFER, gl->vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, nverts * 2 * sizeof(float), verts, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(GLFONS_VERTEX_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(GLFONT_VERTEX_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	glEnableVertexAttribArray(GLFONS_TCOORD_ATTRIB);
+	glEnableVertexAttribArray(GLFONT_TCOORD_ATTRIB);
 	glBindBuffer(GL_ARRAY_BUFFER, gl->tcoordBuffer);
 	glBufferData(GL_ARRAY_BUFFER, nverts * 2 * sizeof(float), tcoords, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(GLFONS_TCOORD_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(GLFONT_TCOORD_ATTRIB, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
-	glEnableVertexAttribArray(GLFONS_COLOR_ATTRIB);
+	glEnableVertexAttribArray(GLFONT_COLOR_ATTRIB);
 	glBindBuffer(GL_ARRAY_BUFFER, gl->colorBuffer);
 	glBufferData(GL_ARRAY_BUFFER, nverts * sizeof(unsigned int), colors, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(GLFONS_COLOR_ATTRIB, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, NULL);
+	glVertexAttribPointer(GLFONT_COLOR_ATTRIB, 4, GL_UNSIGNED_BYTE, GL_FALSE, 0, NULL);
 
 	glDrawArrays(GL_TRIANGLES, 0, nverts);
 
-	glDisableVertexAttribArray(GLFONS_VERTEX_ATTRIB);
-	glDisableVertexAttribArray(GLFONS_TCOORD_ATTRIB);
-	glDisableVertexAttribArray(GLFONS_COLOR_ATTRIB);
+	glDisableVertexAttribArray(GLFONT_VERTEX_ATTRIB);
+	glDisableVertexAttribArray(GLFONT_TCOORD_ATTRIB);
+	glDisableVertexAttribArray(GLFONT_COLOR_ATTRIB);
 
 	glBindVertexArray(0);
 }
 
-static void glfons__renderDelete(void* userPtr)
+static void glfont__renderDelete(void* userPtr)
 {
-	GLFONScontext* gl = (GLFONScontext*)userPtr;
+	GLFONTcontext* gl = (GLFONTcontext*)userPtr;
 	if (gl->tex != 0) {
 		glDeleteTextures(1, &gl->tex);
 		gl->tex = 0;
@@ -200,39 +200,39 @@ static void glfons__renderDelete(void* userPtr)
 	free(gl);
 }
 
-FONS_DEF FONScontext* glfonsCreate(int width, int height, int flags)
+FONT_DEF FONTcontext* glfontCreate(int width, int height, int flags)
 {
-	FONSparams params;
-	GLFONScontext* gl;
+	FONTparams params;
+	GLFONTcontext* gl;
 
-	gl = (GLFONScontext*)malloc(sizeof(GLFONScontext));
+	gl = (GLFONTcontext*)malloc(sizeof(GLFONTcontext));
 	if (gl == NULL) goto error;
-	memset(gl, 0, sizeof(GLFONScontext));
+	memset(gl, 0, sizeof(GLFONTcontext));
 
 	memset(&params, 0, sizeof(params));
 	params.width = width;
 	params.height = height;
 	params.flags = (unsigned char)flags;
-	params.renderCreate = glfons__renderCreate;
-	params.renderResize = glfons__renderResize;
-	params.renderUpdate = glfons__renderUpdate;
-	params.renderDraw = glfons__renderDraw; 
-	params.renderDelete = glfons__renderDelete;
+	params.renderCreate = glfont__renderCreate;
+	params.renderResize = glfont__renderResize;
+	params.renderUpdate = glfont__renderUpdate;
+	params.renderDraw = glfont__renderDraw; 
+	params.renderDelete = glfont__renderDelete;
 	params.userPtr = gl;
 
-	return fonsCreateInternal(&params);
+	return fontCreateInternal(&params);
 
 error:
 	if (gl != NULL) free(gl);
 	return NULL;
 }
 
-FONS_DEF void glfonsDelete(FONScontext* ctx)
+FONT_DEF void glfontDelete(FONTcontext* ctx)
 {
-	fonsDeleteInternal(ctx);
+	fontDeleteInternal(ctx);
 }
 
-FONS_DEF unsigned int glfonsRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
+FONT_DEF unsigned int glfontRGBA(unsigned char r, unsigned char g, unsigned char b, unsigned char a)
 {
 	return (r) | (g << 8) | (b << 16) | (a << 24);
 }
