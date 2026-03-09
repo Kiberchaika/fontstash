@@ -29,6 +29,7 @@ struct MURKAFONTcontext {
 	murka::MurImage* img = nullptr;
 	murka::MurVbo* vbo = nullptr;
 	int width, height;
+	uint64_t rendererContextGeneration = 0;
 };
 typedef struct MURKAFONTcontext MURKAFONTcontext;
 
@@ -68,6 +69,18 @@ static void glfont__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 	int h = rect[3] - rect[1];
 
 	murka::MurkaRenderer* renderer = (murka::MurkaRenderer*)context->renderer;
+
+#if defined(MURKA_JUCE)
+	auto currentGeneration = renderer->getContextGeneration();
+	if (context->rendererContextGeneration != currentGeneration) {
+		delete context->img;
+		delete context->vbo;
+		context->img = new murka::MurImage();
+		context->vbo = new murka::MurVbo();
+		context->rendererContextGeneration = currentGeneration;
+	}
+#endif
+
 #if defined(MURKA_JUCE)
 	context->img->setOpenGLContext(renderer->getOpenGLContext());
 #endif
@@ -89,7 +102,7 @@ static void glfont__renderUpdate(void* userPtr, int* rect, const unsigned char* 
 
 	for (int y = 0; y < h; y++) {
 		for (int x = 0; x < w; x++) {
-			context->img->setColor(x + rect[0], y + rect[1], murka::MurkaColor(255, 255, 255, float(data[(rect[1] + y) * context->width + (rect[0] + x)] )));
+			context->img->setWhiteAlpha(x + rect[0], y + rect[1], data[(rect[1] + y) * context->width + (rect[0] + x)]);
 		}
 	}
 
